@@ -1,14 +1,14 @@
 package models
 
 import (
+	"fmt"
 	"heimdall_project/asgard"
 	"time"
-	"fmt"
 )
 
 type RunningInput struct {
-	Input  asgard.Input
-	Config *InputConfig
+	Input       asgard.Input
+	Config      *InputConfig
 	trace       bool
 	defaultTags map[string]string
 }
@@ -53,6 +53,6 @@ func (r *RunningInput) MakeMetric(
 
 func NewRunningInput(input asgard.Input) *RunningInput {
 	return &RunningInput{
-		Input:  input,
+		Input: input,
 	}
 }

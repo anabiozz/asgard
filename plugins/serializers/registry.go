@@ -1,25 +1,24 @@
 package serializers
 
 import (
-	"heimdall_project/asgard"
-	"time"
 	"fmt"
-	"heimdall_project/asgard/plugins/serializers/json"
+	"heimdall_project/asgard"
 	"heimdall_project/asgard/plugins/serializers/influx"
+	"heimdall_project/asgard/plugins/serializers/json"
+	"time"
 )
 
 // SerializerOutput is an interface for output plugins that are able to
-// serialize telegraf metrics into arbitrary data formats.
+// serialize  metrics into arbitrary data formats.
 type SerializerOutput interface {
 	// SetSerializer sets the serializer function for the interface.
 	SetSerializer(serializer Serializer)
 }
 
-
 // Serializer is an interface defining functions that a serializer plugin must
 // satisfy.
 type Serializer interface {
-	// Serialize takes a single telegraf metric and turns it into a byte buffer.
+	// Serialize takes a single  metric and turns it into a byte buffer.
 	// separate metrics should be separated by a newline, and there should be
 	// a newline at the end of the buffer.
 	Serialize(metric asgard.Metric) ([]byte, error)
@@ -34,7 +33,7 @@ type Config struct {
 	// Prefix to add to all measurements, only supports Graphite
 	Prefix string
 
-	// Template for converting telegraf metrics into Graphite
+	// Template for converting metrics into Graphite
 	// only supports Graphite
 	Template string
 

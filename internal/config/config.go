@@ -1,12 +1,12 @@
 package config
 
 import (
-	"heimdall_project/asgard/models"
-	"time"
 	"fmt"
+	"heimdall_project/asgard/models"
 	"heimdall_project/asgard/plugins/inputs"
 	"heimdall_project/asgard/plugins/outputs"
 	"heimdall_project/asgard/plugins/serializers"
+	"time"
 )
 
 type AgentConfig struct {
@@ -36,7 +36,7 @@ type AgentConfig struct {
 
 	// FlushJitter Jitters the flush interval by a random amount.
 	// This is primarily to avoid large write spikes for users running a large
-	// number of telegraf instances.
+	// number of  instances.
 	// ie, a jitter of 5s and interval 10s means flushes will happen every 10-15s
 	FlushJitter int
 
@@ -51,7 +51,7 @@ type AgentConfig struct {
 	// not be less than 2 times MetricBatchSize.
 	MetricBufferLimit int
 
-	// FlushBufferWhenFull tells Telegraf to flush the metric buffer whenever
+	// FlushBufferWhenFull tells  to flush the metric buffer whenever
 	// it fills up, regardless of FlushInterval. Setting this option to true
 	// does _not_ deactivate FlushInterval.
 	FlushBufferWhenFull bool
@@ -73,30 +73,27 @@ type AgentConfig struct {
 	OmitHostname bool
 }
 
-// Config specifies the URL/user/password for the database that telegraf
-// will be logging to, as well as all the plugins that the user has
-// specified
 type Config struct {
 	Tags          map[string]string
 	InputFilters  []string
 	OutputFilters []string
 
-	Agent       *AgentConfig
-	Inputs      []*models.RunningInput
-	Outputs     []*models.RunningOutput
+	Agent   *AgentConfig
+	Inputs  []*models.RunningInput
+	Outputs []*models.RunningOutput
 }
 
+// NewConfig ...
 func NewConfig() *Config {
 	c := &Config{
-		// Agent defaults:
 		Agent: &AgentConfig{
-			Interval:      time.Duration(10),
+			Interval:      time.Duration(time.Millisecond * 1000),
 			RoundInterval: true,
-			FlushInterval:  time.Duration(10),
+			FlushInterval: time.Duration(time.Millisecond * 1000),
 		},
-		Tags:          make(map[string]string),
-		Inputs:        make([]*models.RunningInput, 0),
-		Outputs: 	   make([]*models.RunningOutput, 0),
+		Tags:    make(map[string]string),
+		Inputs:  make([]*models.RunningInput, 0),
+		Outputs: make([]*models.RunningOutput, 0),
 	}
 	return c
 }
@@ -167,4 +164,3 @@ func buildSerializer(dataFormat string) (serializers.Serializer, error) {
 
 	return serializers.NewSerializer(c)
 }
-

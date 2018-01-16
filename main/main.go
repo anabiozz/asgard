@@ -1,18 +1,19 @@
 package main
 
 import (
+	"fmt"
+	"heimdall_project/asgard/agent"
+	"heimdall_project/asgard/internal/config"
+	"heimdall_project/asgard/plugins/inputs"
+	_ "heimdall_project/asgard/plugins/inputs/system"
+	"heimdall_project/asgard/plugins/outputs"
+	_ "heimdall_project/asgard/plugins/outputs/kafka"
 	"log"
 	"os"
-	"syscall"
-	"heimdall_project/asgard/internal/config"
-	_ "heimdall_project/asgard/plugins/inputs/system"
-	_ "heimdall_project/asgard/plugins/outputs/kafka"
-	"heimdall_project/asgard/agent"
 	"os/signal"
-	"fmt"
-	"heimdall_project/asgard/plugins/outputs"
-	"heimdall_project/asgard/plugins/inputs"
+	"syscall"
 )
+
 var stop chan struct{}
 
 func reloadLoop(stop chan struct{}, inputFilters []string, outputFilters []string) {
@@ -20,12 +21,11 @@ func reloadLoop(stop chan struct{}, inputFilters []string, outputFilters []strin
 	reload <- true
 	for <-reload {
 		reload <- false
-		// If no other options are specified, load the config file and run.
 		c := config.NewConfig()
 		c.InputFilters = inputFilters
 		c.OutputFilters = outputFilters
 
-		for _, value := range c.InputFilters  {
+		for _, value := range c.InputFilters {
 			c.AddInput(value)
 		}
 		for _, value := range c.OutputFilters {
@@ -34,9 +34,7 @@ func reloadLoop(stop chan struct{}, inputFilters []string, outputFilters []strin
 
 		if len(c.Inputs) == 0 {
 			log.Fatalf("E! Error: no inputs found, did you provide a valid config file?")
-		}
-
-		if len(c.Outputs) == 0 {
+		} else if len(c.Outputs) == 0 {
 			log.Fatalf("E! Error: no outputs found, did you provide a valid config file?")
 		}
 
@@ -60,7 +58,7 @@ func reloadLoop(stop chan struct{}, inputFilters []string, outputFilters []strin
 					close(shutdown)
 				}
 				if sig == syscall.SIGHUP {
-					log.Printf("I! Reloading Telegraf config\n")
+					log.Printf("I! Reloading config\n")
 					<-reload
 					reload <- true
 					close(shutdown)
@@ -69,7 +67,6 @@ func reloadLoop(stop chan struct{}, inputFilters []string, outputFilters []strin
 				close(shutdown)
 			}
 		}()
-
 		ag.Run(shutdown)
 	}
 }
@@ -80,12 +77,12 @@ func main() {
 	outputFilters = append(outputFilters, "kafka")
 
 	fmt.Println("Available Output Plugins:")
-	for k, _ := range outputs.Outputs {
+	for k := range outputs.Outputs {
 		fmt.Printf("  %s\n", k)
 	}
 
 	fmt.Println("Available Input Plugins:")
-	for k, _ := range inputs.Inputs {
+	for k := range inputs.Inputs {
 		fmt.Printf("  %s\n", k)
 	}
 	stop = make(chan struct{})
