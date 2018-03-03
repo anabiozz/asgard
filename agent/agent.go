@@ -1,14 +1,14 @@
 package agent
 
 import (
-	"sync"
-	"time"
+	"fmt"
 	"heimdall_project/asgard"
 	"heimdall_project/asgard/internal/config"
-	"log"
 	"heimdall_project/asgard/models"
-	"fmt"
+	"log"
 	"os"
+	"sync"
+	"time"
 )
 
 type Agent struct {
@@ -88,7 +88,7 @@ func (a *Agent) flusher(shutdown chan struct{}, metricC chan asgard.Metric, aggC
 					continue
 				}
 				return
-			case m:= <-outMetricC:
+			case m := <-outMetricC:
 				// if dropOriginal is set to true, then we will only send this
 				// metric to the aggregators, not the outputs.
 				var dropOriginal bool
@@ -125,7 +125,7 @@ func (a *Agent) flusher(shutdown chan struct{}, metricC chan asgard.Metric, aggC
 		}
 	}()
 
-	ticker := time.NewTicker(time.Duration(1000 * time.Millisecond))
+	ticker := time.NewTicker(time.Duration(10000 * time.Millisecond))
 	semaphore := make(chan struct{}, 1)
 
 	for {
@@ -176,6 +176,7 @@ func (a *Agent) flush() {
 
 	wg.Wait()
 }
+
 // gatherer runs the inputs that have been configured with their own
 // reporting interval.
 func (a *Agent) gatherer(shutdown chan struct{}, input *models.RunningInput, interval time.Duration, metricC chan asgard.Metric) {
@@ -195,6 +196,7 @@ func (a *Agent) gatherer(shutdown chan struct{}, input *models.RunningInput, int
 		}
 	}
 }
+
 // Close closes the connection to all configured outputs
 func (a *Agent) Close() error {
 	var err error
@@ -269,7 +271,7 @@ func (a *Agent) Run(shutdown chan struct{}) error {
 
 	wg.Add(len(a.Config.Inputs))
 	for _, input := range a.Config.Inputs {
-		interval := time.Duration(1000 * time.Millisecond)
+		interval := time.Duration(10000 * time.Millisecond)
 		// overwrite global interval if this plugin has it's own.
 		//if input.Config.Interval != 0 {
 		//	interval = time.Duration(10)

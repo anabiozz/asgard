@@ -56,11 +56,6 @@ type AgentConfig struct {
 	// does _not_ deactivate FlushInterval.
 	FlushBufferWhenFull bool
 
-	// TODO(cam): Remove UTC and parameter, they are no longer
-	// valid for the agent config. Leaving them here for now for backwards-
-	// compatibility
-	UTC bool `toml:"utc"`
-
 	// Debug is the option for running in debug mode
 	Debug bool
 
@@ -87,9 +82,9 @@ type Config struct {
 func NewConfig() *Config {
 	c := &Config{
 		Agent: &AgentConfig{
-			Interval:      time.Duration(time.Millisecond * 1000),
-			RoundInterval: true,
-			FlushInterval: time.Duration(time.Millisecond * 1000),
+			Interval:      time.Duration(time.Millisecond * 10000),
+			RoundInterval: false,
+			FlushInterval: time.Duration(time.Millisecond * 10000),
 		},
 		Tags:    make(map[string]string),
 		Inputs:  make([]*models.RunningInput, 0),

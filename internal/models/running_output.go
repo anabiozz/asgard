@@ -1,10 +1,10 @@
 package models
 
 import (
-	"sync"
 	"heimdall_project/asgard"
 	"heimdall_project/asgard/internal/buffer"
 	"log"
+	"sync"
 	"time"
 	//"heimdall_project/asgard/metric"
 	"fmt"
@@ -17,7 +17,6 @@ const (
 	// Default number of metrics kept. It should be a multiple of batch size.
 	DEFAULT_METRIC_BUFFER_LIMIT = 10000
 )
-
 
 // RunningOutput contains the output configuration
 type RunningOutput struct {
@@ -42,8 +41,8 @@ func NewRunningOutput(name string, output asgard.Output, batchSize int, bufferLi
 		batchSize = DEFAULT_METRIC_BATCH_SIZE
 	}
 	ro := &RunningOutput{
-		Name:   name,
-		Output: output,
+		Name:              name,
+		Output:            output,
 		metrics:           buffer.NewBuffer(batchSize),
 		failMetrics:       buffer.NewBuffer(bufferLimit),
 		MetricBufferLimit: bufferLimit,

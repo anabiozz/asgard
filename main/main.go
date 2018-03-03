@@ -5,9 +5,9 @@ import (
 	"heimdall_project/asgard/agent"
 	"heimdall_project/asgard/internal/config"
 	"heimdall_project/asgard/plugins/inputs"
-	_ "heimdall_project/asgard/plugins/inputs/system"
+	_ "heimdall_project/asgard/plugins/inputs/all"
 	"heimdall_project/asgard/plugins/outputs"
-	_ "heimdall_project/asgard/plugins/outputs/kafka"
+	_ "heimdall_project/asgard/plugins/outputs/all"
 	"log"
 	"os"
 	"os/signal"
@@ -21,24 +21,27 @@ func reloadLoop(stop chan struct{}, inputFilters []string, outputFilters []strin
 	reload <- true
 	for <-reload {
 		reload <- false
-		c := config.NewConfig()
-		c.InputFilters = inputFilters
-		c.OutputFilters = outputFilters
 
-		for _, value := range c.InputFilters {
-			c.AddInput(value)
+		// Create new config
+		conf := config.NewConfig()
+		conf.InputFilters = inputFilters
+		conf.OutputFilters = outputFilters
+
+		for _, value := range conf.InputFilters {
+			conf.AddInput(value)
 		}
-		for _, value := range c.OutputFilters {
-			c.AddOutput(value)
+		for _, value := range conf.OutputFilters {
+			conf.AddOutput(value)
 		}
 
-		if len(c.Inputs) == 0 {
+		if len(conf.Inputs) == 0 {
 			log.Fatalf("E! Error: no inputs found, did you provide a valid config file?")
-		} else if len(c.Outputs) == 0 {
+		} else if len(conf.Outputs) == 0 {
 			log.Fatalf("E! Error: no outputs found, did you provide a valid config file?")
 		}
 
-		ag, err := agent.NewAgent(c)
+		// Create new agent with confing
+		ag, err := agent.NewAgent(conf)
 		if err != nil {
 			log.Fatal("E! " + err.Error())
 		}
@@ -74,7 +77,8 @@ func reloadLoop(stop chan struct{}, inputFilters []string, outputFilters []strin
 func main() {
 	inputFilters, outputFilters := []string{}, []string{}
 	inputFilters = append(inputFilters, "cpu")
-	outputFilters = append(outputFilters, "kafka")
+	inputFilters = append(inputFilters, "mem")
+	outputFilters = append(outputFilters, "influxdb")
 
 	fmt.Println("Available Output Plugins:")
 	for k := range outputs.Outputs {
