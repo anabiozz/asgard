@@ -1,12 +1,12 @@
 package models
 
 import (
-	"math"
-	"time"
-	"strings"
-	"log"
 	"heimdall_project/asgard"
 	"heimdall_project/asgard/metric"
+	"log"
+	"math"
+	"strings"
+	"time"
 )
 
 // makemetric is used by both RunningAggregator & RunningInput
@@ -21,13 +21,9 @@ import (
 //                 This is used by Aggregators, because aggregators use filters
 //                 on incoming metrics instead of on created metrics.
 // TODO refactor this to not have such a huge func signature.
-func makemetric(
-	measurement string,
-	fields map[string]interface{},
-	tags map[string]string,
-	mType asgard.ValueType,
-	t time.Time,
-) asgard.Metric {
+func makemetric(measurement string, fields map[string]interface{}, tags map[string]string,
+	mType asgard.ValueType, t time.Time) asgard.Metric {
+
 	if len(fields) == 0 || len(measurement) == 0 {
 		return nil
 	}

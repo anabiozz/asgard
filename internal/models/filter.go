@@ -41,11 +41,7 @@ func (f *Filter) IsActive() bool {
 // tags map. It will return false if the metric should be "filtered out", and
 // true if the metric should "pass".
 // It will modify tags & fields in-place if they need to be deleted.
-func (f *Filter) Apply(
-	measurement string,
-	fields map[string]interface{},
-	tags map[string]string,
-) bool {
+func (f *Filter) Apply(measurement string, fields map[string]interface{}, tags map[string]string) bool {
 	if !f.isActive {
 		return true
 	}

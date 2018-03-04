@@ -4,13 +4,14 @@ import (
 	"fmt"
 	"heimdall_project/asgard"
 	"heimdall_project/asgard/internal/config"
-	"heimdall_project/asgard/models"
+	"heimdall_project/asgard/internal/models"
 	"log"
 	"os"
 	"sync"
 	"time"
 )
 
+// Agent ...
 type Agent struct {
 	Config *config.Config
 }
@@ -57,8 +58,7 @@ func gatherWithTimeout(shutdown chan struct{}, input *models.RunningInput, acc *
 			}
 			return
 		case <-ticker.C:
-			err := fmt.Errorf("took longer to collect than collection interval (%s)",
-				timeout)
+			err := fmt.Errorf("took longer to collect than collection interval (%s)", timeout)
 			acc.AddError(err)
 			continue
 		case <-shutdown:
@@ -144,8 +144,7 @@ func (a *Agent) flusher(shutdown chan struct{}, metricC chan asgard.Metric, aggC
 					<-semaphore
 				default:
 					// skipping this flush because one is already happening
-					log.Println("W! Skipping a scheduled flush because there is" +
-						" already a flush ongoing.")
+					log.Println("W! Skipping a scheduled flush because there is already a flush ongoing.")
 				}
 			}()
 		case metric := <-metricC:
@@ -168,8 +167,7 @@ func (a *Agent) flush() {
 			defer wg.Done()
 			err := output.Write()
 			if err != nil {
-				log.Printf("E! Error writing to output [%s]: %s\n",
-					output.Name, err.Error())
+				log.Printf("E! Error writing to output [%s]: %s\n", output.Name, err.Error())
 			}
 		}(o)
 	}
@@ -177,15 +175,11 @@ func (a *Agent) flush() {
 	wg.Wait()
 }
 
-// gatherer runs the inputs that have been configured with their own
-// reporting interval.
+// gatherer runs the inputs that have been configured with their own reporting interval.
 func (a *Agent) gatherer(shutdown chan struct{}, input *models.RunningInput, interval time.Duration, metricC chan asgard.Metric) {
 	acc := NewAccumulator(input, metricC)
 	ticker := time.NewTicker(interval)
 	defer ticker.Stop()
-
-	println(interval)
-
 	for {
 		gatherWithTimeout(shutdown, input, acc, interval)
 		select {
@@ -202,10 +196,6 @@ func (a *Agent) Close() error {
 	var err error
 	for _, o := range a.Config.Outputs {
 		err = o.Output.Close()
-		switch ot := o.Output.(type) {
-		case asgard.ServiceOutput:
-			ot.Stop()
-		}
 	}
 	return err
 }
@@ -213,19 +203,10 @@ func (a *Agent) Close() error {
 // Connect connects to all configured outputs
 func (a *Agent) Connect() error {
 	for _, o := range a.Config.Outputs {
-		switch ot := o.Output.(type) {
-		case asgard.ServiceOutput:
-			if err := ot.Start(); err != nil {
-				log.Printf("E! Service for output %s failed to start, exiting\n%s\n",
-					o.Name, err.Error())
-				return err
-			}
-		}
 		log.Printf("D! Attempting connection to output: %s\n", o.Name)
 		err := o.Output.Connect()
 		if err != nil {
-			log.Printf("E! Failed to connect to output %s, retrying in 15s, "+
-				"error was '%s' \n", o.Name, err)
+			log.Printf("E! Failed to connect to output %s, retrying in 15s, error was '%s' \n", o.Name, err)
 			time.Sleep(15 * time.Second)
 			err = o.Output.Connect()
 			if err != nil {
@@ -245,21 +226,6 @@ func (a *Agent) Run(shutdown chan struct{}) error {
 	metricC := make(chan asgard.Metric, 100)
 	aggC := make(chan asgard.Metric, 100)
 
-	// Start all ServicePlugins
-	for _, input := range a.Config.Inputs {
-		switch p := input.Input.(type) {
-		case asgard.ServiceInput:
-			acc := NewAccumulator(input, metricC)
-			// Service input plugins should set their own precision of their
-			// metrics.
-			if err := p.Start(acc); err != nil {
-				log.Printf("E! Service for input %s failed to start, exiting\n%s\n",
-					input.Name(), err.Error())
-				return err
-			}
-			defer p.Stop()
-		}
-	}
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
@@ -272,10 +238,6 @@ func (a *Agent) Run(shutdown chan struct{}) error {
 	wg.Add(len(a.Config.Inputs))
 	for _, input := range a.Config.Inputs {
 		interval := time.Duration(10000 * time.Millisecond)
-		// overwrite global interval if this plugin has it's own.
-		//if input.Config.Interval != 0 {
-		//	interval = time.Duration(10)
-		//}
 		go func(in *models.RunningInput, interv time.Duration) {
 			defer wg.Done()
 			a.gatherer(shutdown, in, interv, metricC)

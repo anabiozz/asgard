@@ -24,6 +24,8 @@ func reloadLoop(stop chan struct{}, inputFilters []string, outputFilters []strin
 
 		// Create new config
 		conf := config.NewConfig()
+
+		// TODO: implement config filling
 		conf.InputFilters = inputFilters
 		conf.OutputFilters = outputFilters
 
@@ -36,7 +38,8 @@ func reloadLoop(stop chan struct{}, inputFilters []string, outputFilters []strin
 
 		if len(conf.Inputs) == 0 {
 			log.Fatalf("E! Error: no inputs found, did you provide a valid config file?")
-		} else if len(conf.Outputs) == 0 {
+		}
+		if len(conf.Outputs) == 0 {
 			log.Fatalf("E! Error: no outputs found, did you provide a valid config file?")
 		}
 
@@ -75,6 +78,10 @@ func reloadLoop(stop chan struct{}, inputFilters []string, outputFilters []strin
 }
 
 func main() {
+
+	// TODO: implement a feature that will be obtain all processes in system
+	// and to fill inputFilters
+
 	inputFilters, outputFilters := []string{}, []string{}
 	inputFilters = append(inputFilters, "cpu")
 	inputFilters = append(inputFilters, "mem")

@@ -2,7 +2,7 @@ package config
 
 import (
 	"fmt"
-	"heimdall_project/asgard/models"
+	"heimdall_project/asgard/internal/models"
 	"heimdall_project/asgard/plugins/inputs"
 	"heimdall_project/asgard/plugins/outputs"
 	"heimdall_project/asgard/plugins/serializers"
@@ -68,6 +68,7 @@ type AgentConfig struct {
 	OmitHostname bool
 }
 
+// Config ...
 type Config struct {
 	Tags          map[string]string
 	InputFilters  []string
@@ -85,6 +86,7 @@ func NewConfig() *Config {
 			Interval:      time.Duration(time.Millisecond * 10000),
 			RoundInterval: false,
 			FlushInterval: time.Duration(time.Millisecond * 10000),
+			// OmitHostname: false,
 		},
 		Tags:    make(map[string]string),
 		Inputs:  make([]*models.RunningInput, 0),
@@ -93,6 +95,7 @@ func NewConfig() *Config {
 	return c
 }
 
+// Check the occurrence of the name in list array
 func sliceContains(name string, list []string) bool {
 	for _, b := range list {
 		if b == name {
@@ -102,6 +105,7 @@ func sliceContains(name string, list []string) bool {
 	return false
 }
 
+// AddInput ...
 func (c *Config) AddInput(name string) error {
 	if len(c.InputFilters) > 0 && !sliceContains(name, c.InputFilters) {
 		return nil
@@ -122,6 +126,7 @@ func (c *Config) AddInput(name string) error {
 	return nil
 }
 
+// AddOutput ...
 func (c *Config) AddOutput(name string) error {
 	if len(c.OutputFilters) > 0 && !sliceContains(name, c.OutputFilters) {
 		return nil
@@ -150,7 +155,7 @@ func (c *Config) AddOutput(name string) error {
 // a serializers.Serializer object, and creates it, which can then be added onto
 // an Output object.
 func buildSerializer(dataFormat string) (serializers.Serializer, error) {
-	c := &serializers.Config{TimestampUnits: time.Duration(1 * time.Second)}
+	c := &serializers.Config{TimestampUnits: time.Duration(10 * time.Second)}
 
 	c.DataFormat = dataFormat
 	if c.DataFormat == "" {

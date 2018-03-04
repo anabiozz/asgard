@@ -1,13 +1,15 @@
 package system
 
 import (
-	"github.com/shirou/gopsutil/cpu"
-	"heimdall_project/asgard/plugins/inputs"
-	"heimdall_project/asgard"
 	"fmt"
+	"heimdall_project/asgard"
+	"heimdall_project/asgard/plugins/inputs"
 	"time"
+
+	"github.com/shirou/gopsutil/cpu"
 )
 
+// CPUStats ...
 type CPUStats struct {
 	ps        PS
 	lastStats map[string]cpu.TimesStat
@@ -18,7 +20,7 @@ type CPUStats struct {
 	ReportActive   bool `toml:"report_active"`
 }
 
-
+// Gather ...
 func (s *CPUStats) Gather(acc asgard.Accumulator) error {
 	times, err := s.ps.CPUTimes(s.PerCPU, s.TotalCPU)
 	if err != nil {
@@ -51,7 +53,7 @@ func (s *CPUStats) Gather(acc asgard.Accumulator) error {
 			if s.ReportActive {
 				fieldsC["time_active"] = activeCpuTime(cts)
 			}
-			//acc.AddCounter("cpu", fieldsC, tags, now)
+			acc.AddCounter("cpu", fieldsC, tags, now)
 		}
 
 		// Add in percentage
@@ -102,24 +104,26 @@ func (s *CPUStats) Gather(acc asgard.Accumulator) error {
 	return err
 }
 
+// totalCpuTime ...
 func totalCpuTime(t cpu.TimesStat) float64 {
 	total := t.User + t.System + t.Nice + t.Iowait + t.Irq + t.Softirq + t.Steal +
 		t.Idle
 	return total
 }
 
+// activeCpuTime ...
 func activeCpuTime(t cpu.TimesStat) float64 {
 	active := totalCpuTime(t) - t.Idle
 	return active
 }
 
-func init()  {
+func init() {
 	inputs.Add("cpu", func() asgard.Input {
 		return &CPUStats{
-			PerCPU:   true,
-			TotalCPU: true,
+			PerCPU:         true,
+			TotalCPU:       true,
 			CollectCPUTime: true,
-			ps:       newSystemPS(),
+			ps:             newSystemPS(),
 		}
 	})
 }

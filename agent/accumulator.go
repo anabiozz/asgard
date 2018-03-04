@@ -6,22 +6,17 @@ import (
 )
 
 type accumulator struct {
-	metrics chan asgard.Metric
-	maker MetricMaker
+	metrics   chan asgard.Metric
+	maker     MetricMaker
 	precision time.Duration
 }
 
+// MetricMaker ...
 type MetricMaker interface {
-	Name() string
-	MakeMetric(
-		measurement string,
-		fields map[string]interface{},
-		tags map[string]string,
-		mType asgard.ValueType,
-		t time.Time,
-	) asgard.Metric
+	MakeMetric(measurement string, fields map[string]interface{}, tags map[string]string, mType asgard.ValueType, t time.Time) asgard.Metric
 }
 
+// NewAccumulator ...
 func NewAccumulator(maker MetricMaker, metrics chan asgard.Metric) *accumulator {
 	acc := accumulator{
 		maker:     maker,
@@ -31,12 +26,7 @@ func NewAccumulator(maker MetricMaker, metrics chan asgard.Metric) *accumulator 
 	return &acc
 }
 
-func (ac *accumulator) AddFields(
-	measurement string,
-	fields map[string]interface{},
-	tags map[string]string,
-	t ...time.Time,
-) {
+func (ac *accumulator) AddFields(measurement string, fields map[string]interface{}, tags map[string]string, t ...time.Time) {
 	if m := ac.maker.MakeMetric(measurement, fields, tags, asgard.Untyped, ac.getTime(t)); m != nil {
 		ac.metrics <- m
 	}
