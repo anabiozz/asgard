@@ -20,6 +20,12 @@ type CPUStats struct {
 	ReportActive   bool `toml:"report_active"`
 }
 
+func (_ *CPUStats) Description() string {
+	return "Read metrics about memory usage"
+}
+
+func (_ *CPUStats) SampleConfig() string { return "" }
+
 // Gather ...
 func (s *CPUStats) Gather(acc asgard.Accumulator) error {
 	times, err := s.ps.CPUTimes(s.PerCPU, s.TotalCPU)

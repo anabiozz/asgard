@@ -32,8 +32,12 @@ func (r *RunningInput) Name() string {
 
 // MakeMetric either returns a metric, or returns nil if the metric doesn't
 // need to be created (because of filtering, an error, etc.)
-func (r *RunningInput) MakeMetric(measurement string, fields map[string]interface{},
-	tags map[string]string, mType asgard.ValueType, t time.Time) asgard.Metric {
+func (r *RunningInput) MakeMetric(
+	measurement string,
+	fields map[string]interface{},
+	tags map[string]string,
+	mType asgard.ValueType,
+	t time.Time) asgard.Metric {
 
 	m := makemetric(measurement, fields, tags, mType, t)
 

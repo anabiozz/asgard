@@ -111,6 +111,7 @@ func (i *InfluxDB) Connect() error {
 	}
 
 	for _, u := range urls {
+		log.Println(u)
 		switch {
 		case strings.HasPrefix(u, "udp"):
 			config := client.UDPConfig{

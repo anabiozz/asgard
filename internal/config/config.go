@@ -6,7 +6,11 @@ import (
 	"heimdall_project/asgard/plugins/inputs"
 	"heimdall_project/asgard/plugins/outputs"
 	"heimdall_project/asgard/plugins/serializers"
+	"io/ioutil"
+	"log"
 	"time"
+
+	"github.com/BurntSushi/toml"
 )
 
 type AgentConfig struct {
@@ -83,10 +87,10 @@ type Config struct {
 func NewConfig() *Config {
 	c := &Config{
 		Agent: &AgentConfig{
-			Interval:      time.Duration(time.Millisecond * 10000),
+			Interval:      time.Duration(time.Millisecond * 5000),
 			RoundInterval: false,
-			FlushInterval: time.Duration(time.Millisecond * 10000),
-			// OmitHostname: false,
+			FlushInterval: time.Duration(time.Millisecond * 5000),
+			OmitHostname:  false,
 		},
 		Tags:    make(map[string]string),
 		Inputs:  make([]*models.RunningInput, 0),
@@ -163,4 +167,19 @@ func buildSerializer(dataFormat string) (serializers.Serializer, error) {
 	}
 
 	return serializers.NewSerializer(c)
+}
+
+func (c *Config) LoadConfig() error {
+	conf := c.Agent
+
+	tomlFile, err := ioutil.ReadFile("../internal/config/default-config.toml")
+	if err != nil {
+		log.Println(err)
+	}
+
+	if _, err := toml.Decode(string(tomlFile), conf); err != nil {
+		return err
+	}
+
+	return nil
 }

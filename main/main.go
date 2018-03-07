@@ -16,35 +16,52 @@ import (
 
 var stop chan struct{}
 
-func reloadLoop(stop chan struct{}, inputFilters []string, outputFilters []string) {
+func loop(
+	stop chan struct{},
+	inputFilters []string,
+	outputFilters []string) {
+
 	reload := make(chan bool, 1)
 	reload <- true
 	for <-reload {
 		reload <- false
 
 		// Create new config
-		conf := config.NewConfig()
+		newConfig := config.NewConfig()
+		err := newConfig.LoadConfig()
 
-		// TODO: implement config filling
-		conf.InputFilters = inputFilters
-		conf.OutputFilters = outputFilters
+		newConfig.InputFilters = inputFilters
+		newConfig.OutputFilters = outputFilters
 
-		for _, value := range conf.InputFilters {
-			conf.AddInput(value)
+		for _, value := range newConfig.InputFilters {
+			newConfig.AddInput(value)
 		}
-		for _, value := range conf.OutputFilters {
-			conf.AddOutput(value)
+		for _, value := range newConfig.OutputFilters {
+			newConfig.AddOutput(value)
 		}
 
-		if len(conf.Inputs) == 0 {
+		log.Printf("%#v", newConfig.Agent)
+
+		// TODO: implement config parsing in fillng conf struct
+
+		// for _, input := range newConfig.Inputs {
+		// 	log.Printf("%s", input.Input.SampleConfig())
+		// }
+
+		// for _, output := range newConfig.Outputs {
+		// 	log.Printf("%s", output.Output.SampleConfig())
+		// }
+
+		if len(newConfig.Inputs) == 0 {
 			log.Fatalf("E! Error: no inputs found, did you provide a valid config file?")
 		}
-		if len(conf.Outputs) == 0 {
+
+		if len(newConfig.Outputs) == 0 {
 			log.Fatalf("E! Error: no outputs found, did you provide a valid config file?")
 		}
 
 		// Create new agent with confing
-		ag, err := agent.NewAgent(conf)
+		ag, err := agent.NewAgent(newConfig)
 		if err != nil {
 			log.Fatal("E! " + err.Error())
 		}
@@ -96,6 +113,7 @@ func main() {
 	for k := range inputs.Inputs {
 		fmt.Printf("  %s\n", k)
 	}
+
 	stop = make(chan struct{})
-	reloadLoop(stop, inputFilters, outputFilters)
+	loop(stop, inputFilters, outputFilters)
 }

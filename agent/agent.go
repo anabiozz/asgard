@@ -18,6 +18,7 @@ type Agent struct {
 
 // NewAgent returns an Agent struct based off the given Config
 func NewAgent(config *config.Config) (*Agent, error) {
+
 	a := &Agent{
 		Config: config,
 	}
@@ -41,7 +42,12 @@ func NewAgent(config *config.Config) (*Agent, error) {
 //   but continues waiting for it to return. This is to avoid leaving behind
 //   hung processes, and to prevent re-calling the same hung process over and
 //   over.
-func gatherWithTimeout(shutdown chan struct{}, input *models.RunningInput, acc *accumulator, timeout time.Duration) {
+func gatherWithTimeout(
+	shutdown chan struct{},
+	input *models.RunningInput,
+	acc *accumulator,
+	timeout time.Duration) {
+
 	ticker := time.NewTicker(timeout)
 	defer ticker.Stop()
 	done := make(chan error)
@@ -68,7 +74,11 @@ func gatherWithTimeout(shutdown chan struct{}, input *models.RunningInput, acc *
 }
 
 // flusher monitors the metrics input channel and flushes on the minimum interval
-func (a *Agent) flusher(shutdown chan struct{}, metricC chan asgard.Metric, aggC chan asgard.Metric) error {
+func (a *Agent) flusher(
+	shutdown chan struct{},
+	metricC chan asgard.Metric,
+	aggC chan asgard.Metric) error {
+
 	// Inelegant, but this sleep is to allow the Gather threads to run, so that
 	// the flusher will flush after metrics are collected.
 	time.Sleep(time.Millisecond * 300)
@@ -160,6 +170,7 @@ func (a *Agent) flusher(shutdown chan struct{}, metricC chan asgard.Metric, aggC
 
 // flush writes a list of metrics to all configured outputs
 func (a *Agent) flush() {
+
 	var wg sync.WaitGroup
 	wg.Add(len(a.Config.Outputs))
 	for _, o := range a.Config.Outputs {
@@ -176,7 +187,12 @@ func (a *Agent) flush() {
 }
 
 // gatherer runs the inputs that have been configured with their own reporting interval.
-func (a *Agent) gatherer(shutdown chan struct{}, input *models.RunningInput, interval time.Duration, metricC chan asgard.Metric) {
+func (a *Agent) gatherer(
+	shutdown chan struct{},
+	input *models.RunningInput,
+	interval time.Duration,
+	metricC chan asgard.Metric) {
+
 	acc := NewAccumulator(input, metricC)
 	ticker := time.NewTicker(interval)
 	defer ticker.Stop()
@@ -202,6 +218,7 @@ func (a *Agent) Close() error {
 
 // Connect connects to all configured outputs
 func (a *Agent) Connect() error {
+
 	for _, o := range a.Config.Outputs {
 		log.Printf("D! Attempting connection to output: %s\n", o.Name)
 		err := o.Output.Connect()
@@ -237,7 +254,7 @@ func (a *Agent) Run(shutdown chan struct{}) error {
 
 	wg.Add(len(a.Config.Inputs))
 	for _, input := range a.Config.Inputs {
-		interval := time.Duration(10000 * time.Millisecond)
+		interval := time.Duration(5000 * time.Millisecond)
 		go func(in *models.RunningInput, interv time.Duration) {
 			defer wg.Done()
 			a.gatherer(shutdown, in, interv, metricC)
