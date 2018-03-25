@@ -161,7 +161,7 @@ func (c *Config) AddOutput(name string) error {
 		t.SetSerializer(serializer)
 	}
 
-	ro := models.NewRunningOutput(name, output, c.Agent.MetricBatchSize, c.Agent.MetricBufferLimit, output.SampleConfig())
+	ro := models.NewRunningOutput(name, output, c.Agent.MetricBatchSize, c.Agent.MetricBufferLimit)
 	c.Outputs = append(c.Outputs, ro)
 	return nil
 }
