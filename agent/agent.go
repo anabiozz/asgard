@@ -76,16 +76,12 @@ func gatherWithTimeout(
 // flusher monitors the metrics input channel and flushes on the minimum interval
 func (a *Agent) flusher(
 	shutdown chan struct{},
-	metricC chan asgard.Metric,
-	aggC chan asgard.Metric) error {
+	metricC chan asgard.Metric) error {
 
-	// Inelegant, but this sleep is to allow the Gather threads to run, so that
-	// the flusher will flush after metrics are collected.
 	time.Sleep(time.Millisecond * 300)
 
-	// create an output metric channel and a gorouting that continuously passes
-	// each metric onto the output plugins & aggregators.
 	outMetricC := make(chan asgard.Metric, 100)
+
 	var wg sync.WaitGroup
 	wg.Add(1)
 	go func() {
@@ -94,54 +90,29 @@ func (a *Agent) flusher(
 			select {
 			case <-shutdown:
 				if len(outMetricC) > 0 {
-					// keep going until outMetricC is flushed
+					// hold on while outMetricC full
 					continue
 				}
 				return
 			case m := <-outMetricC:
-				// if dropOriginal is set to true, then we will only send this
-				// metric to the aggregators, not the outputs.
-				var dropOriginal bool
-				if !dropOriginal {
-					for i, o := range a.Config.Outputs {
-						if i == len(a.Config.Outputs)-1 {
-							o.AddMetric(m)
-						} else {
-							o.AddMetric(m.Copy())
-						}
+				for i, o := range a.Config.Outputs {
+					if i == len(a.Config.Outputs)-1 {
+						o.AddMetric(m)
+					} else {
+						o.AddMetric(m.Copy())
 					}
 				}
 			}
 		}
 	}()
 
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		for {
-			select {
-			case <-shutdown:
-				if len(aggC) > 0 {
-					// keep going until aggC is flushed
-					continue
-				}
-				return
-			case metric := <-aggC:
-				metrics := []asgard.Metric{metric}
-				for _, m := range metrics {
-					outMetricC <- m
-				}
-			}
-		}
-	}()
-
-	ticker := time.NewTicker(time.Duration(10000 * time.Millisecond))
+	ticker := time.NewTicker(time.Duration(a.Config.Agent.FlushInterval * time.Millisecond))
 	semaphore := make(chan struct{}, 1)
 
 	for {
 		select {
 		case <-shutdown:
-			log.Println("I! Hang on, flushing any cached metrics before shutdown")
+			log.Println("INFO: Hang on, flushing any cached metrics before shutdown")
 			// wait for outMetricC to get flushed before flushing outputs
 			wg.Wait()
 			a.flush()
@@ -154,12 +125,11 @@ func (a *Agent) flusher(
 					<-semaphore
 				default:
 					// skipping this flush because one is already happening
-					log.Println("W! Skipping a scheduled flush because there is already a flush ongoing.")
+					log.Println("INFO: Skipping a scheduled flush because there is already a flush ongoing.")
 				}
 			}()
 		case metric := <-metricC:
-			// NOTE potential bottleneck here as we put each metric through the
-			// processors serially.
+			// NOTE potential bottleneck here as we put each metric through the processors serially.
 			mS := []asgard.Metric{metric}
 			for _, m := range mS {
 				outMetricC <- m
@@ -178,11 +148,10 @@ func (a *Agent) flush() {
 			defer wg.Done()
 			err := output.Write()
 			if err != nil {
-				log.Printf("E! Error writing to output [%s]: %s\n", output.Name, err.Error())
+				log.Printf("ERROR: Error writing to output [%s]: %s\n", output.Name, err.Error())
 			}
 		}(o)
 	}
-
 	wg.Wait()
 }
 
@@ -193,6 +162,7 @@ func (a *Agent) gatherer(
 	interval time.Duration,
 	metricC chan asgard.Metric) {
 
+	// Create new accumulator
 	acc := NewAccumulator(input, metricC)
 	ticker := time.NewTicker(interval)
 	defer ticker.Stop()
@@ -218,19 +188,18 @@ func (a *Agent) Close() error {
 
 // Connect connects to all configured outputs
 func (a *Agent) Connect() error {
-
 	for _, o := range a.Config.Outputs {
-		log.Printf("D! Attempting connection to output: %s\n", o.Name)
+		log.Printf("DEBUG: Attempting connection to output: %s\n", o.Name)
 		err := o.Output.Connect()
 		if err != nil {
-			log.Printf("E! Failed to connect to output %s, retrying in 15s, error was '%s' \n", o.Name, err)
+			log.Printf("ERROR: Failed to connect to output %s, retrying in 15s, error was '%s' \n", o.Name, err)
 			time.Sleep(15 * time.Second)
 			err = o.Output.Connect()
 			if err != nil {
 				return err
 			}
 		}
-		log.Printf("D! Successfully connected to output: %s\n", o.Name)
+		log.Printf("DEBUG: Successfully connected to output: %s\n", o.Name)
 	}
 	return nil
 }
@@ -240,13 +209,12 @@ func (a *Agent) Run(shutdown chan struct{}) error {
 	var wg sync.WaitGroup
 
 	// channel shared between all input threads for accumulating metrics
-	metricC := make(chan asgard.Metric, 100)
-	aggC := make(chan asgard.Metric, 100)
+	metricChannel := make(chan asgard.Metric, 100)
 
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		if err := a.flusher(shutdown, metricC, aggC); err != nil {
+		if err := a.flusher(shutdown, metricChannel); err != nil {
 			log.Printf("E! Flusher routine failed, exiting: %s\n", err.Error())
 			close(shutdown)
 		}
@@ -254,10 +222,13 @@ func (a *Agent) Run(shutdown chan struct{}) error {
 
 	wg.Add(len(a.Config.Inputs))
 	for _, input := range a.Config.Inputs {
-		interval := time.Duration(5000 * time.Millisecond)
-		go func(in *models.RunningInput, interv time.Duration) {
+
+		// Set gatherer interval
+		interval := time.Duration(a.Config.Agent.Interval * time.Millisecond)
+
+		go func(input *models.RunningInput, interval time.Duration) {
 			defer wg.Done()
-			a.gatherer(shutdown, in, interv, metricC)
+			a.gatherer(shutdown, input, interval, metricChannel)
 		}(input, interval)
 	}
 

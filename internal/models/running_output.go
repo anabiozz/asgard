@@ -7,7 +7,6 @@ import (
 	"sync"
 	"time"
 	//"heimdall_project/asgard/metric"
-	"fmt"
 )
 
 const (
@@ -33,6 +32,7 @@ type RunningOutput struct {
 	sync.Mutex
 }
 
+// NewRunningOutput ...
 func NewRunningOutput(name string, output asgard.Output, batchSize int, bufferLimit int) *RunningOutput {
 	if bufferLimit == 0 {
 		bufferLimit = DEFAULT_METRIC_BUFFER_LIMIT
@@ -40,8 +40,12 @@ func NewRunningOutput(name string, output asgard.Output, batchSize int, bufferLi
 	if batchSize == 0 {
 		batchSize = DEFAULT_METRIC_BATCH_SIZE
 	}
+
+	config := &OutputConfig{}
+
 	ro := &RunningOutput{
 		Name:              name,
+		Config:            config,
 		Output:            output,
 		metrics:           buffer.NewBuffer(batchSize),
 		failMetrics:       buffer.NewBuffer(bufferLimit),
@@ -53,8 +57,8 @@ func NewRunningOutput(name string, output asgard.Output, batchSize int, bufferLi
 
 // OutputConfig containing name and filter
 type OutputConfig struct {
-	Name   string
-	Filter Filter
+	Name string
+	// Filter Filter
 }
 
 // AddMetric adds a metric to the output. This function can also write cached
@@ -63,26 +67,9 @@ func (ro *RunningOutput) AddMetric(m asgard.Metric) {
 	if m == nil {
 		return
 	}
-
-	// Filter any tagexclude/taginclude parameters before adding metric
-	//if ro.Config.Filter.IsActive() {
-	//	// In order to filter out tags, we need to create a new metric, since
-	//	// metrics are immutable once created.
-	//	name := m.Name()
-	//	tags := m.Tags()
-	//	fields := m.Fields()
-	//	t := m.Time()
-	//	if ok := ro.Config.Filter.Apply(name, fields, tags); !ok {
-	//		return
-	//	}
-	//	// error is not possible if creating from another metric, so ignore.
-	//	m, _ = metric.New(name, tags, fields, t)
-	//}
-
 	ro.metrics.Add(m)
 	if ro.metrics.Len() == ro.MetricBatchSize {
 		batch := ro.metrics.Batch(ro.MetricBatchSize)
-		fmt.Println(batch)
 		err := ro.write(batch)
 		if err != nil {
 			ro.failMetrics.Add(batch...)

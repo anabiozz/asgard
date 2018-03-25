@@ -1,0 +1,23 @@
+[Agent]
+interval = 5000 # Millisecond
+round_interval = false
+precision = 1
+collection_jitter = 10
+flush_interval = 5000
+flush_jitter = 10
+metric_batch_size = 10000
+metric_buffer_limit = 10000
+flush_buffer_when_full = false
+debug = false
+logfile ="log"
+quiet = false
+hostname = ""
+omit_hostname = false
+
+# Default input plagins
+[InputFilters]
+inputs  = ["cpu", "mem", "disk"]
+
+# Default input plagins
+[OutputFilters]
+outputs = ["influxdb"]

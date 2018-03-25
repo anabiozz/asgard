@@ -185,8 +185,8 @@ func (c *httpClient) doRequest(
 
 func (c *httpClient) makeWriteRequest(
 	body io.Reader,
-	writeURL string,
-) (*http.Request, error) {
+	writeURL string) (*http.Request, error) {
+
 	req, err := c.makeRequest(writeURL, body)
 	if err != nil {
 		return nil, err

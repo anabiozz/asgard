@@ -6,20 +6,34 @@ import (
 	"heimdall_project/asgard/plugins/inputs"
 	"heimdall_project/asgard/plugins/outputs"
 	"heimdall_project/asgard/plugins/serializers"
-	"io/ioutil"
-	"log"
+	"heimdall_project/asgard/utils"
 	"time"
 
 	"github.com/BurntSushi/toml"
 )
 
+type tomlConfig struct {
+	c AgentConfig `toml:"agent_config"`
+}
+
+type duration struct {
+	time.Duration
+}
+
+func (d *duration) UnmarshalText(text []byte) error {
+	var err error
+	d.Duration, err = time.ParseDuration(string(text))
+	return err
+}
+
+// AgentConfig ...
 type AgentConfig struct {
 	// Interval at which to gather information
-	Interval time.Duration
+	Interval time.Duration `toml:"interval"`
 
 	// RoundInterval rounds collection interval to 'interval'.
 	//     ie, if Interval=10s then always collect on :00, :10, :20, etc.
-	RoundInterval bool
+	RoundInterval bool `toml:"round_interval"`
 
 	// By default or when set to "0s", precision will be set to the same
 	// timestamp order as the collection interval, with the maximum being 1s.
@@ -27,80 +41,77 @@ type AgentConfig struct {
 	//       when interval = "250ms", precision will be "1ms"
 	// Precision will NOT be used for service inputs. It is up to each individual
 	// service input to set the timestamp at the appropriate precision.
-	Precision int
+	Precision int `toml:"precision"`
 
 	// CollectionJitter is used to jitter the collection by a random amount.
 	// Each plugin will sleep for a random time within jitter before collecting.
 	// This can be used to avoid many plugins querying things like sysfs at the
 	// same time, which can have a measurable effect on the system.
-	CollectionJitter int
+	CollectionJitter int `toml:"collection_jitter"`
 
 	// FlushInterval is the Interval at which to flush data
-	FlushInterval time.Duration
+	FlushInterval time.Duration `toml:"flush_interval"`
 
 	// FlushJitter Jitters the flush interval by a random amount.
 	// This is primarily to avoid large write spikes for users running a large
 	// number of  instances.
 	// ie, a jitter of 5s and interval 10s means flushes will happen every 10-15s
-	FlushJitter int
+	FlushJitter int `toml:"flush_jitter"`
 
 	// MetricBatchSize is the maximum number of metrics that is wrote to an
 	// output plugin in one call.
-	MetricBatchSize int
+	MetricBatchSize int `toml:"metric_batch_size"`
 
 	// MetricBufferLimit is the max number of metrics that each output plugin
 	// will cache. The buffer is cleared when a successful write occurs. When
 	// full, the oldest metrics will be overwritten. This number should be a
 	// multiple of MetricBatchSize. Due to current implementation, this could
 	// not be less than 2 times MetricBatchSize.
-	MetricBufferLimit int
+	MetricBufferLimit int `toml:"metric_buffer_limit"`
 
 	// FlushBufferWhenFull tells  to flush the metric buffer whenever
 	// it fills up, regardless of FlushInterval. Setting this option to true
 	// does _not_ deactivate FlushInterval.
-	FlushBufferWhenFull bool
+	FlushBufferWhenFull bool `toml:"flush_buffer_when_dull"`
 
 	// Debug is the option for running in debug mode
-	Debug bool
+	Debug bool `toml:"debug"`
 
 	// Logfile specifies the file to send logs to
-	Logfile string
+	Logfile string `toml:"logfile"`
 
 	// Quiet is the option for running in quiet mode
-	Quiet        bool
-	Hostname     string
-	OmitHostname bool
+	Quiet        bool   `toml:"quiet"`
+	Hostname     string `toml:"hostname"`
+	OmitHostname bool   `toml:"omit_hostname"`
 }
 
-// Config ...
+// Config struct
 type Config struct {
 	Tags          map[string]string
-	InputFilters  []string
-	OutputFilters []string
+	InputFilters  map[string]interface{}
+	OutputFilters map[string]interface{}
 
 	Agent   *AgentConfig
 	Inputs  []*models.RunningInput
 	Outputs []*models.RunningOutput
 }
 
-// NewConfig ...
+// NewConfig return new config
 func NewConfig() *Config {
 	c := &Config{
-		Agent: &AgentConfig{
-			Interval:      time.Duration(time.Millisecond * 5000),
-			RoundInterval: false,
-			FlushInterval: time.Duration(time.Millisecond * 5000),
-			OmitHostname:  false,
-		},
-		Tags:    make(map[string]string),
-		Inputs:  make([]*models.RunningInput, 0),
-		Outputs: make([]*models.RunningOutput, 0),
+		Agent:         &AgentConfig{},
+		InputFilters:  make(map[string]interface{}, 0),
+		OutputFilters: make(map[string]interface{}, 0),
+		Tags:          make(map[string]string),
+		Inputs:        make([]*models.RunningInput, 0),
+		Outputs:       make([]*models.RunningOutput, 0),
 	}
 	return c
 }
 
 // Check the occurrence of the name in list array
-func sliceContains(name string, list []string) bool {
+func sliceContains(name string, list []interface{}) bool {
 	for _, b := range list {
 		if b == name {
 			return true
@@ -111,7 +122,7 @@ func sliceContains(name string, list []string) bool {
 
 // AddInput ...
 func (c *Config) AddInput(name string) error {
-	if len(c.InputFilters) > 0 && !sliceContains(name, c.InputFilters) {
+	if len(c.InputFilters["inputs"].([]interface{})) > 0 && !sliceContains(name, c.InputFilters["inputs"].([]interface{})) {
 		return nil
 	}
 	// Legacy support renaming io input to diskio
@@ -132,7 +143,7 @@ func (c *Config) AddInput(name string) error {
 
 // AddOutput ...
 func (c *Config) AddOutput(name string) error {
-	if len(c.OutputFilters) > 0 && !sliceContains(name, c.OutputFilters) {
+	if len(c.OutputFilters) > 0 && !sliceContains(name, c.OutputFilters["outputs"].([]interface{})) {
 		return nil
 	}
 	creator, ok := outputs.Outputs[name]
@@ -155,9 +166,6 @@ func (c *Config) AddOutput(name string) error {
 	return nil
 }
 
-// buildSerializer grabs the necessary entries from the ast.Table for creating
-// a serializers.Serializer object, and creates it, which can then be added onto
-// an Output object.
 func buildSerializer(dataFormat string) (serializers.Serializer, error) {
 	c := &serializers.Config{TimestampUnits: time.Duration(10 * time.Second)}
 
@@ -169,17 +177,11 @@ func buildSerializer(dataFormat string) (serializers.Serializer, error) {
 	return serializers.NewSerializer(c)
 }
 
+// LoadConfig ...
 func (c *Config) LoadConfig() error {
-	conf := c.Agent
-
-	tomlFile, err := ioutil.ReadFile("../internal/config/default-config.toml")
+	_, err := toml.DecodeFile(utils.GetEnv("../default-config.toml", "../default-config.toml"), c)
 	if err != nil {
-		log.Println(err)
-	}
-
-	if _, err := toml.Decode(string(tomlFile), conf); err != nil {
 		return err
 	}
-
 	return nil
 }

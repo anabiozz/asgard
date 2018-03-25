@@ -8,8 +8,7 @@ import (
 
 // RunningInput ...
 type RunningInput struct {
-	Input asgard.Input
-	// TODO
+	Input       asgard.Input
 	Config      *InputConfig
 	trace       bool
 	defaultTags map[string]string

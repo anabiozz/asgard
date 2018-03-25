@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-// makemetric is used by both RunningAggregator & RunningInput
+// makemetric is used by RunningInput
 // to make metrics.
 //   nameOverride: override the name of the measurement being made.
 //   namePrefix:   add this prefix to each measurement name.
@@ -21,8 +21,12 @@ import (
 //                 This is used by Aggregators, because aggregators use filters
 //                 on incoming metrics instead of on created metrics.
 // TODO refactor this to not have such a huge func signature.
-func makemetric(measurement string, fields map[string]interface{}, tags map[string]string,
-	mType asgard.ValueType, t time.Time) asgard.Metric {
+func makemetric(
+	measurement string,
+	fields map[string]interface{},
+	tags map[string]string,
+	mType asgard.ValueType,
+	t time.Time) asgard.Metric {
 
 	if len(fields) == 0 || len(measurement) == 0 {
 		return nil
@@ -33,13 +37,11 @@ func makemetric(measurement string, fields map[string]interface{}, tags map[stri
 
 	for k, v := range tags {
 		if strings.HasSuffix(k, `\`) {
-			log.Printf("D! Measurement [%s] tag [%s] "+
-				"ends with a backslash, skipping", measurement, k)
+			log.Printf("DEBUG: Measurement [%s] tag [%s] ends with a backslash, skipping", measurement, k)
 			delete(tags, k)
 			continue
 		} else if strings.HasSuffix(v, `\`) {
-			log.Printf("D! Measurement [%s] tag [%s] has a value "+
-				"ending with a backslash, skipping", measurement, k)
+			log.Printf("DEBUG: Measurement [%s] tag [%s] has a value ending with a backslash, skipping", measurement, k)
 			delete(tags, k)
 			continue
 		}
@@ -47,8 +49,7 @@ func makemetric(measurement string, fields map[string]interface{}, tags map[stri
 
 	for k, v := range fields {
 		if strings.HasSuffix(k, `\`) {
-			log.Printf("D! Measurement [%s] field [%s] "+
-				"ends with a backslash, skipping", measurement, k)
+			log.Printf("DEBUG: Measurement [%s] field [%s] ends with a backslash, skipping", measurement, k)
 			delete(fields, k)
 			continue
 		}
@@ -96,9 +97,7 @@ func makemetric(measurement string, fields map[string]interface{}, tags map[stri
 		case float64:
 			// NaNs are invalid values in influxdb, skip measurement
 			if math.IsNaN(val) || math.IsInf(val, 0) {
-				log.Printf("D! Measurement [%s] field [%s] has a NaN or Inf "+
-					"field, skipping",
-					measurement, k)
+				log.Printf("DEBUG: Measurement [%s] field [%s] has a NaN or Inf field, skipping", measurement, k)
 				delete(fields, k)
 				continue
 			}

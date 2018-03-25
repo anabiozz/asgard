@@ -1,15 +1,15 @@
 package metric
 
 import (
-	"fmt"
-	"time"
-	"heimdall_project/asgard"
-	"strings"
-	"strconv"
-	"hash/fnv"
-	"sort"
 	"bytes"
+	"fmt"
+	"hash/fnv"
+	"heimdall_project/asgard"
 	"reflect"
+	"sort"
+	"strconv"
+	"strings"
+	"time"
 	"unsafe"
 )
 
@@ -21,9 +21,7 @@ type metric struct {
 	fields []byte
 	t      []byte
 
-	mType     asgard.ValueType
-	aggregate bool
-
+	mType asgard.ValueType
 	// cached values for reuse in "get" functions
 	hashID uint64
 	nsec   int64
@@ -31,14 +29,6 @@ type metric struct {
 
 func (m *metric) String() string {
 	return string(m.name) + string(m.tags) + " " + string(m.fields) + " " + string(m.t) + "\n"
-}
-
-func (m *metric) SetAggregate(b bool) {
-	m.aggregate = b
-}
-
-func (m *metric) IsAggregate() bool {
-	return m.aggregate
 }
 
 func (m *metric) Type() asgard.ValueType {
@@ -567,8 +557,8 @@ func New(
 	tags map[string]string,
 	fields map[string]interface{},
 	t time.Time,
-	mType ...asgard.ValueType,
-) (asgard.Metric, error) {
+	mType ...asgard.ValueType) (asgard.Metric, error) {
+
 	if len(name) == 0 {
 		return nil, fmt.Errorf("missing measurement name")
 	}

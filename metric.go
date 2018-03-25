@@ -55,8 +55,4 @@ type Metric interface {
 	Type() ValueType
 	Len() int // returns the length of the serialized metric, including newline
 	HashID() uint64
-
-	// aggregator things:
-	SetAggregate(bool)
-	IsAggregate() bool
 }

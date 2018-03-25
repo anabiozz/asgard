@@ -1,12 +1,9 @@
 package main
 
 import (
-	"fmt"
 	"heimdall_project/asgard/agent"
 	"heimdall_project/asgard/internal/config"
-	"heimdall_project/asgard/plugins/inputs"
 	_ "heimdall_project/asgard/plugins/inputs/all"
-	"heimdall_project/asgard/plugins/outputs"
 	_ "heimdall_project/asgard/plugins/outputs/all"
 	"log"
 	"os"
@@ -16,11 +13,7 @@ import (
 
 var stop chan struct{}
 
-func loop(
-	stop chan struct{},
-	inputFilters []string,
-	outputFilters []string) {
-
+func loop(stop chan struct{}) {
 	reload := make(chan bool, 1)
 	reload <- true
 	for <-reload {
@@ -28,47 +21,37 @@ func loop(
 
 		// Create new config
 		newConfig := config.NewConfig()
+		// Filling new config getting data from default config
 		err := newConfig.LoadConfig()
-
-		newConfig.InputFilters = inputFilters
-		newConfig.OutputFilters = outputFilters
-
-		for _, value := range newConfig.InputFilters {
-			newConfig.AddInput(value)
-		}
-		for _, value := range newConfig.OutputFilters {
-			newConfig.AddOutput(value)
+		if err != nil {
+			log.Fatalf("ERROR: %s", err)
 		}
 
-		log.Printf("%#v", newConfig.Agent)
+		inputs := newConfig.InputFilters["inputs"].([]interface{})
+		outputs := newConfig.OutputFilters["outputs"].([]interface{})
 
-		// TODO: implement config parsing in fillng conf struct
-
-		// for _, input := range newConfig.Inputs {
-		// 	log.Printf("%s", input.Input.SampleConfig())
-		// }
-
-		// for _, output := range newConfig.Outputs {
-		// 	log.Printf("%s", output.Output.SampleConfig())
-		// }
-
-		if len(newConfig.Inputs) == 0 {
-			log.Fatalf("E! Error: no inputs found, did you provide a valid config file?")
+		// Filling InputFilters
+		for _, value := range inputs {
+			newConfig.AddInput(value.(string))
+		}
+		// Filling OutputFilters
+		for _, value := range outputs {
+			newConfig.AddOutput(value.(string))
 		}
 
-		if len(newConfig.Outputs) == 0 {
-			log.Fatalf("E! Error: no outputs found, did you provide a valid config file?")
+		if len(newConfig.Inputs) == 0 || len(newConfig.Outputs) == 0 {
+			log.Fatalf("ERROR: no inputs or outputs found, did you provide a valid config file?")
 		}
 
 		// Create new agent with confing
-		ag, err := agent.NewAgent(newConfig)
+		newAgent, err := agent.NewAgent(newConfig)
 		if err != nil {
-			log.Fatal("E! " + err.Error())
+			log.Fatal("ERROR: " + err.Error())
 		}
 
-		err = ag.Connect()
+		err = newAgent.Connect()
 		if err != nil {
-			log.Fatal("E! " + err.Error())
+			log.Fatal("ERROR: " + err.Error())
 		}
 
 		shutdown := make(chan struct{})
@@ -90,30 +73,12 @@ func loop(
 				close(shutdown)
 			}
 		}()
-		ag.Run(shutdown)
+		newAgent.Run(shutdown)
 	}
 }
 
 func main() {
-
-	// TODO: implement a feature that will be obtain all processes in system
-	// and to fill inputFilters
-
-	inputFilters, outputFilters := []string{}, []string{}
-	inputFilters = append(inputFilters, "cpu")
-	inputFilters = append(inputFilters, "mem")
-	outputFilters = append(outputFilters, "influxdb")
-
-	fmt.Println("Available Output Plugins:")
-	for k := range outputs.Outputs {
-		fmt.Printf("  %s\n", k)
-	}
-
-	fmt.Println("Available Input Plugins:")
-	for k := range inputs.Inputs {
-		fmt.Printf("  %s\n", k)
-	}
-
+	// TODO: implement a feature that will be obtain all processes in system and to fill inputFilters
 	stop = make(chan struct{})
-	loop(stop, inputFilters, outputFilters)
+	loop(stop)
 }

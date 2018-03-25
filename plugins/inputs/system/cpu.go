@@ -42,25 +42,25 @@ func (s *CPUStats) Gather(acc asgard.Accumulator) error {
 		total := totalCpuTime(cts)
 		active := activeCpuTime(cts)
 
-		if s.CollectCPUTime {
-			// Add cpu time metrics
-			fieldsC := map[string]interface{}{
-				"time_user":       cts.User,
-				"time_system":     cts.System,
-				"time_idle":       cts.Idle,
-				"time_nice":       cts.Nice,
-				"time_iowait":     cts.Iowait,
-				"time_irq":        cts.Irq,
-				"time_softirq":    cts.Softirq,
-				"time_steal":      cts.Steal,
-				"time_guest":      cts.Guest,
-				"time_guest_nice": cts.GuestNice,
-			}
-			if s.ReportActive {
-				fieldsC["time_active"] = activeCpuTime(cts)
-			}
-			acc.AddCounter("cpu", fieldsC, tags, now)
-		}
+		// if s.CollectCPUTime {
+		// 	// Add cpu time metrics
+		// 	fieldsC := map[string]interface{}{
+		// 		"time_user":       cts.User,
+		// 		"time_system":     cts.System,
+		// 		"time_idle":       cts.Idle,
+		// 		"time_nice":       cts.Nice,
+		// 		"time_iowait":     cts.Iowait,
+		// 		"time_irq":        cts.Irq,
+		// 		"time_softirq":    cts.Softirq,
+		// 		"time_steal":      cts.Steal,
+		// 		"time_guest":      cts.Guest,
+		// 		"time_guest_nice": cts.GuestNice,
+		// 	}
+		// 	if s.ReportActive {
+		// 		fieldsC["time_active"] = activeCpuTime(cts)
+		// 	}
+		// 	acc.AddCounter("cpu", fieldsC, tags, now)
+		// }
 
 		// Add in percentage
 		if len(s.lastStats) == 0 {
@@ -112,8 +112,7 @@ func (s *CPUStats) Gather(acc asgard.Accumulator) error {
 
 // totalCpuTime ...
 func totalCpuTime(t cpu.TimesStat) float64 {
-	total := t.User + t.System + t.Nice + t.Iowait + t.Irq + t.Softirq + t.Steal +
-		t.Idle
+	total := t.User + t.System + t.Nice + t.Iowait + t.Irq + t.Softirq + t.Steal + t.Idle
 	return total
 }
 
@@ -126,10 +125,10 @@ func activeCpuTime(t cpu.TimesStat) float64 {
 func init() {
 	inputs.Add("cpu", func() asgard.Input {
 		return &CPUStats{
-			PerCPU:         true,
-			TotalCPU:       true,
-			CollectCPUTime: true,
-			ps:             newSystemPS(),
+			// PerCPU:         false,
+			TotalCPU: true,
+			// CollectCPUTime: false,
+			ps: newSystemPS(),
 		}
 	})
 }

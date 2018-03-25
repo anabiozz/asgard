@@ -23,11 +23,11 @@ type MetricMaker interface {
 
 // NewAccumulator ...
 func NewAccumulator(
-	maker MetricMaker,
+	runningInput MetricMaker,
 	metrics chan asgard.Metric) *accumulator {
 
 	acc := accumulator{
-		maker:     maker,
+		maker:     runningInput,
 		metrics:   metrics,
 		precision: time.Nanosecond,
 	}
