@@ -39,6 +39,8 @@ func (s *CPUStats) Gather(acc asgard.Accumulator) error {
 			"cpu": cts.CPU,
 		}
 
+		fmt.Printf("tags: %s", tags)
+
 		total := totalCpuTime(cts)
 		active := activeCpuTime(cts)
 
