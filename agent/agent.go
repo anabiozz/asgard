@@ -215,7 +215,7 @@ func (a *Agent) Run(shutdown chan struct{}) error {
 	go func() {
 		defer wg.Done()
 		if err := a.flusher(shutdown, metricChannel); err != nil {
-			log.Printf("E! Flusher routine failed, exiting: %s\n", err.Error())
+			log.Printf("ERROR Flusher routine failed, exiting: %s\n", err.Error())
 			close(shutdown)
 		}
 	}()
