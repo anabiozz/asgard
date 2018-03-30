@@ -39,30 +39,28 @@ func (s *CPUStats) Gather(acc asgard.Accumulator) error {
 			"cpu": cts.CPU,
 		}
 
-		fmt.Printf("tags: %s", tags)
-
 		total := totalCpuTime(cts)
 		active := activeCpuTime(cts)
 
-		// if s.CollectCPUTime {
-		// 	// Add cpu time metrics
-		// 	fieldsC := map[string]interface{}{
-		// 		"time_user":       cts.User,
-		// 		"time_system":     cts.System,
-		// 		"time_idle":       cts.Idle,
-		// 		"time_nice":       cts.Nice,
-		// 		"time_iowait":     cts.Iowait,
-		// 		"time_irq":        cts.Irq,
-		// 		"time_softirq":    cts.Softirq,
-		// 		"time_steal":      cts.Steal,
-		// 		"time_guest":      cts.Guest,
-		// 		"time_guest_nice": cts.GuestNice,
-		// 	}
-		// 	if s.ReportActive {
-		// 		fieldsC["time_active"] = activeCpuTime(cts)
-		// 	}
-		// 	acc.AddCounter("cpu", fieldsC, tags, now)
-		// }
+		 if s.CollectCPUTime {
+		 	// Add cpu time metrics
+		 	fieldsC := map[string]interface{}{
+		 		"time_user":       cts.User,
+		 		"time_system":     cts.System,
+		 		"time_idle":       cts.Idle,
+		 		"time_nice":       cts.Nice,
+		 		"time_iowait":     cts.Iowait,
+		 		"time_irq":        cts.Irq,
+		 		"time_softirq":    cts.Softirq,
+		 		"time_steal":      cts.Steal,
+		 		"time_guest":      cts.Guest,
+		 		"time_guest_nice": cts.GuestNice,
+		 	}
+		 	if s.ReportActive {
+		 		fieldsC["time_active"] = activeCpuTime(cts)
+		 	}
+		 	acc.AddCounter("cpu", fieldsC, tags, now)
+		 }
 
 		// Add in percentage
 		if len(s.lastStats) == 0 {

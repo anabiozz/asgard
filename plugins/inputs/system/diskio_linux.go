@@ -1,12 +1,11 @@
 package system
 
 import (
-	"bufio"
+	"golang.org/x/sys/unix"
 	"fmt"
 	"os"
+	"bufio"
 	"strings"
-
-	"golang.org/x/sys/unix"
 )
 
 type diskInfoCache struct {
@@ -16,7 +15,7 @@ type diskInfoCache struct {
 
 var udevPath = "/run/udev/data"
 
-func (s *DiskIOStats) diskInfo(devName string) (map[string]string, error) {
+func (s *DiskIO) diskInfo(devName string) (map[string]string, error) {
 	var err error
 	var stat unix.Stat_t
 

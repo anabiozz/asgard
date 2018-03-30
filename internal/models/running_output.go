@@ -58,7 +58,6 @@ func NewRunningOutput(name string, output asgard.Output, batchSize int, bufferLi
 // OutputConfig containing name and filter
 type OutputConfig struct {
 	Name string
-	// Filter Filter
 }
 
 // AddMetric adds a metric to the output. This function can also write cached
@@ -80,8 +79,7 @@ func (ro *RunningOutput) AddMetric(m asgard.Metric) {
 // Write writes all cached points to this output.
 func (ro *RunningOutput) Write() error {
 	nFails, nMetrics := ro.failMetrics.Len(), ro.metrics.Len()
-	log.Printf("D! Output [%s] buffer fullness: %d / %d metrics. ",
-		ro.Name, nFails+nMetrics, ro.MetricBufferLimit)
+	log.Printf("DEBUG: Output [%s] buffer fullness: %d / %d metrics. ", ro.Name, nFails+nMetrics, ro.MetricBufferLimit)
 	var err error
 	if !ro.failMetrics.IsEmpty() {
 		// how many batches of failed writes we need to write.
@@ -132,8 +130,7 @@ func (ro *RunningOutput) write(metrics []asgard.Metric) error {
 	err := ro.Output.Write(metrics)
 	elapsed := time.Since(start)
 	if err == nil {
-		log.Printf("D! Output [%s] wrote batch of %d metrics in %s\n",
-			ro.Name, nMetrics, elapsed)
+		log.Printf("DEBUG: Output [%s] wrote batch of %d metrics in %s\n", ro.Name, nMetrics, elapsed)
 	}
 	return err
 }
