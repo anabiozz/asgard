@@ -2,9 +2,9 @@ package agent
 
 import (
 	"fmt"
-	"heimdall_project/asgard"
-	"heimdall_project/asgard/internal/config"
-	"heimdall_project/asgard/internal/models"
+	"github.com/anabiozz/asgard"
+	"github.com/anabiozz/asgard/internal/config"
+	"github.com/anabiozz/asgard/internal/models"
 	"log"
 	"os"
 	"sync"

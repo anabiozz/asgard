@@ -5,9 +5,9 @@ import (
 	"net"
 	"strings"
 
-	"heimdall_project/asgard"
-	"heimdall_project/asgard/plugins/inputs"
-	"heimdall_project/asgard/filter"
+	"github.com/anabiozz/asgard"
+	"github.com/anabiozz/asgard/plugins/inputs"
+	"github.com/anabiozz/asgard/filter"
 )
 
 type NetIOStats struct {

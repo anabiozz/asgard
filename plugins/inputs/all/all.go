@@ -1,5 +1,5 @@
 package all
 
 import (
-	_ "heimdall_project/asgard/plugins/inputs/system"
+	_ "github.com/anabiozz/asgard/plugins/inputs/system"
 )

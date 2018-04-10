@@ -6,9 +6,9 @@ import (
 	"regexp"
 	"strings"
 
-	"heimdall_project/asgard"
-	"heimdall_project/asgard/filter"
-	"heimdall_project/asgard/plugins/inputs"
+	"github.com/anabiozz/asgard"
+	"github.com/anabiozz/asgard/filter"
+	"github.com/anabiozz/asgard/plugins/inputs"
 )
 
 var (

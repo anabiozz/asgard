@@ -10,8 +10,8 @@ import (
 "strconv"
 "strings"
 
-	"heimdall_project/asgard"
-	"heimdall_project/asgard/plugins/inputs"
+	"github.com/anabiozz/asgard"
+	"github.com/anabiozz/asgard/plugins/inputs"
 )
 
 // /proc/stat file line prefixes to gather stats on:

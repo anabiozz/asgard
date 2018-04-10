@@ -2,7 +2,7 @@ package models
 
 import (
 	"fmt"
-	"heimdall_project/asgard"
+	"github.com/anabiozz/asgard"
 	"time"
 )
 

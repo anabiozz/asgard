@@ -7,8 +7,8 @@ import (
 	"strconv"
 
 	"path"
-	"heimdall_project/asgard"
-	"heimdall_project/asgard/plugins/inputs"
+	"github.com/anabiozz/asgard"
+	"github.com/anabiozz/asgard/plugins/inputs"
 )
 
 // https://www.kernel.org/doc/Documentation/sysctl/fs.txt

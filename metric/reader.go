@@ -1,7 +1,7 @@
 package metric
 
 import (
-	"heimdall_project/asgard"
+	"github.com/anabiozz/asgard"
 	"io"
 )
 

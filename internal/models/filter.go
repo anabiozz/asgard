@@ -1,6 +1,6 @@
 package models
 
-import "heimdall_project/asgard/filter"
+import "github.com/anabiozz/asgard/filter"
 
 // TagFilter is the name of a tag, and the values on which to filter
 type TagFilter struct {

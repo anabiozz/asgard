@@ -2,11 +2,11 @@ package config
 
 import (
 	"fmt"
-	"heimdall_project/asgard/internal/models"
-	"heimdall_project/asgard/plugins/inputs"
-	"heimdall_project/asgard/plugins/outputs"
-	"heimdall_project/asgard/plugins/serializers"
-	"heimdall_project/asgard/utils"
+	"github.com/anabiozz/asgard/internal/models"
+	"github.com/anabiozz/asgard/plugins/inputs"
+	"github.com/anabiozz/asgard/plugins/outputs"
+	"github.com/anabiozz/asgard/plugins/serializers"
+	"github.com/anabiozz/asgard/utils"
 	"time"
 
 	"github.com/BurntSushi/toml"

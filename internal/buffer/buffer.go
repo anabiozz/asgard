@@ -2,7 +2,7 @@ package buffer
 
 import (
 	"sync"
-	"heimdall_project/asgard"
+	"github.com/anabiozz/asgard"
 )
 
 // Buffer is an object for storing metrics in a circular buffer.

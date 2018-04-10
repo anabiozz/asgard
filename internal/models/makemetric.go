@@ -1,8 +1,8 @@
 package models
 
 import (
-	"heimdall_project/asgard"
-	"heimdall_project/asgard/metric"
+	"github.com/anabiozz/asgard"
+	"github.com/anabiozz/asgard/metric"
 	"log"
 	"math"
 	"strings"

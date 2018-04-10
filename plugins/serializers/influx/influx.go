@@ -1,6 +1,6 @@
 package influx
 
-import "heimdall_project/asgard"
+import "github.com/anabiozz/asgard"
 
 type InfluxSerializer struct {}
 

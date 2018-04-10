@@ -1,7 +1,7 @@
 package inputs
 
 import (
-	"heimdall_project/asgard"
+	"github.com/anabiozz/asgard"
 )
 
 // Creator ...

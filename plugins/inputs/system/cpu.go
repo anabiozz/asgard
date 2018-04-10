@@ -2,8 +2,8 @@ package system
 
 import (
 	"fmt"
-	"heimdall_project/asgard"
-	"heimdall_project/asgard/plugins/inputs"
+	"github.com/anabiozz/asgard"
+	"github.com/anabiozz/asgard/plugins/inputs"
 	"time"
 
 	"github.com/shirou/gopsutil/cpu"

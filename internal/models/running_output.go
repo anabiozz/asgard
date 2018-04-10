@@ -1,8 +1,8 @@
 package models
 
 import (
-	"heimdall_project/asgard"
-	"heimdall_project/asgard/internal/buffer"
+	"github.com/anabiozz/asgard"
+	"github.com/anabiozz/asgard/internal/buffer"
 	"log"
 	"sync"
 	"time"

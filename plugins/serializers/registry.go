@@ -2,9 +2,9 @@ package serializers
 
 import (
 	"fmt"
-	"heimdall_project/asgard"
-	"heimdall_project/asgard/plugins/serializers/influx"
-	"heimdall_project/asgard/plugins/serializers/json"
+	"github.com/anabiozz/asgard"
+	"github.com/anabiozz/asgard/plugins/serializers/influx"
+	"github.com/anabiozz/asgard/plugins/serializers/json"
 	"time"
 )
 

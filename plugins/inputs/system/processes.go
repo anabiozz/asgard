@@ -14,8 +14,8 @@ import (
 	"strconv"
 	"syscall"
 
-	"heimdall_project/asgard"
-	"heimdall_project/asgard/plugins/inputs"
+	"github.com/anabiozz/asgard"
+	"github.com/anabiozz/asgard/plugins/inputs"
 )
 
 type Processes struct {

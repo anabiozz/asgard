@@ -2,11 +2,11 @@ package influxdb
 
 import (
 	"fmt"
-	"heimdall_project/asgard"
-	"heimdall_project/asgard/internal"
-	"heimdall_project/asgard/metric"
-	"heimdall_project/asgard/plugins/outputs"
-	"heimdall_project/asgard/plugins/outputs/influxdb/client"
+	"github.com/anabiozz/asgard"
+	"github.com/anabiozz/asgard/internal"
+	"github.com/anabiozz/asgard/metric"
+	"github.com/anabiozz/asgard/plugins/outputs"
+	"github.com/anabiozz/asgard/plugins/outputs/influxdb/client"
 	"log"
 	"math/rand"
 	"strings"

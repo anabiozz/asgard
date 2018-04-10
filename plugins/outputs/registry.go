@@ -1,6 +1,6 @@
 package outputs
 
-import "heimdall_project/asgard"
+import "github.com/anabiozz/asgard"
 
 type Creator func() asgard.Output
 

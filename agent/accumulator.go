@@ -1,7 +1,7 @@
 package agent
 
 import (
-	"heimdall_project/asgard"
+	"github.com/anabiozz/asgard"
 	"time"
 )
 

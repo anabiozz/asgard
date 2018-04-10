@@ -1,10 +1,10 @@
 package main
 
 import (
-	"heimdall_project/asgard/agent"
-	"heimdall_project/asgard/internal/config"
-	_ "heimdall_project/asgard/plugins/inputs/all"
-	_ "heimdall_project/asgard/plugins/outputs/all"
+	"github.com/anabiozz/asgard/agent"
+	"github.com/anabiozz/asgard/internal/config"
+	_ "github.com/anabiozz/asgard/plugins/inputs/all"
+	_ "github.com/anabiozz/asgard/plugins/outputs/all"
 	"log"
 	"os"
 	"os/signal"

@@ -3,9 +3,9 @@ package kafka
 import (
 	"crypto/tls"
 	"fmt"
-	"heimdall_project/asgard"
-	"heimdall_project/asgard/plugins/outputs"
-	"heimdall_project/asgard/plugins/serializers"
+	"github.com/anabiozz/asgard"
+	"github.com/anabiozz/asgard/plugins/outputs"
+	"github.com/anabiozz/asgard/plugins/serializers"
 	"strings"
 
 	"github.com/Shopify/sarama"

@@ -3,7 +3,7 @@ package json
 import (
 ejson "encoding/json"
  	"time"
-	"heimdall_project/asgard"
+	"github.com/anabiozz/asgard"
 )
 
 type JsonSerializer struct {

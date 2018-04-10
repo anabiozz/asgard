@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"hash/fnv"
-	"heimdall_project/asgard"
+	"github.com/anabiozz/asgard"
 	"reflect"
 	"sort"
 	"strconv"
