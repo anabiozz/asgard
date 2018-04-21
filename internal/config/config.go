@@ -1,15 +1,21 @@
 package config
 
 import (
+	"flag"
 	"fmt"
+	"time"
+
 	"github.com/anabiozz/asgard/internal/models"
 	"github.com/anabiozz/asgard/plugins/inputs"
 	"github.com/anabiozz/asgard/plugins/outputs"
 	"github.com/anabiozz/asgard/plugins/serializers"
 	"github.com/anabiozz/asgard/utils"
-	"time"
 
 	"github.com/BurntSushi/toml"
+)
+
+const (
+	envConfigPath = "DEFAULT_CONFIG"
 )
 
 type tomlConfig struct {
@@ -179,7 +185,8 @@ func buildSerializer(dataFormat string) (serializers.Serializer, error) {
 
 // LoadConfig ...
 func (c *Config) LoadConfig() error {
-	_, err := toml.DecodeFile(utils.GetEnv("../default-config.toml", "../default-config.toml"), c)
+	flag.Parse()
+	_, err := toml.DecodeFile(utils.GetEnv("envConfigPath", flag.Arg(0)), c)
 	if err != nil {
 		return err
 	}

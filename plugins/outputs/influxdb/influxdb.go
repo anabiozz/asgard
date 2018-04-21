@@ -2,15 +2,16 @@ package influxdb
 
 import (
 	"fmt"
+	"log"
+	"math/rand"
+	"strings"
+	"time"
+
 	"github.com/anabiozz/asgard"
 	"github.com/anabiozz/asgard/internal"
 	"github.com/anabiozz/asgard/metric"
 	"github.com/anabiozz/asgard/plugins/outputs"
 	"github.com/anabiozz/asgard/plugins/outputs/influxdb/client"
-	"log"
-	"math/rand"
-	"strings"
-	"time"
 
 	"github.com/BurntSushi/toml"
 )
@@ -224,7 +225,7 @@ var sampleConfig = `
   ## Multiple urls can be specified as part of the same cluster,
   ## this means that only ONE of the urls will be written to each interval.
   # urls = ["udp://127.0.0.1:8089"] # UDP endpoint example
-  urls = ["http://127.0.0.1:8086"] # required
+  urls = ["http://influxdb:8086"] # required
   ## The target database for metrics (telegraf will create it if not exists).
   database = "telegraf" # required
 
