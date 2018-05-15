@@ -1,11 +1,12 @@
 package models
 
 import (
-	"github.com/anabiozz/asgard"
-	"github.com/anabiozz/asgard/internal/buffer"
 	"log"
 	"sync"
 	"time"
+
+	"github.com/anabiozz/asgard"
+	"github.com/anabiozz/asgard/internal/buffer"
 	//"heimdall_project/asgard/metric"
 )
 
@@ -120,10 +121,12 @@ func (ro *RunningOutput) Write() error {
 }
 
 func (ro *RunningOutput) write(metrics []asgard.Metric) error {
+
 	nMetrics := len(metrics)
 	if nMetrics == 0 {
 		return nil
 	}
+
 	ro.Lock()
 	defer ro.Unlock()
 	start := time.Now()

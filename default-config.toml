@@ -16,7 +16,9 @@ omit_hostname = false
 
 # Default input plagins
 [InputFilters]
-inputs  = ["cpu", "mem", "disk",  "diskio", "kernel", "linux_sysctl_fs", "processes", "netstat", "net"]
+inputs  = ["influxdb", "cpu", "mem", "disk",  "diskio", "kernel", "processes", "netstat", "net"]
+# "linux_sysctl_fs", 
+# "docker", 
 
 # Default input plagins
 [OutputFilters]

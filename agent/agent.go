@@ -2,13 +2,14 @@ package agent
 
 import (
 	"fmt"
-	"github.com/anabiozz/asgard"
-	"github.com/anabiozz/asgard/internal/config"
-	"github.com/anabiozz/asgard/internal/models"
 	"log"
 	"os"
 	"sync"
 	"time"
+
+	"github.com/anabiozz/asgard"
+	"github.com/anabiozz/asgard/internal/config"
+	"github.com/anabiozz/asgard/internal/models"
 )
 
 // Agent ...

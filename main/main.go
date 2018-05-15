@@ -1,14 +1,15 @@
 package main
 
 import (
-	"github.com/anabiozz/asgard/agent"
-	"github.com/anabiozz/asgard/internal/config"
-	_ "github.com/anabiozz/asgard/plugins/inputs/all"
-	_ "github.com/anabiozz/asgard/plugins/outputs/all"
 	"log"
 	"os"
 	"os/signal"
 	"syscall"
+
+	"github.com/anabiozz/asgard/agent"
+	"github.com/anabiozz/asgard/internal/config"
+	_ "github.com/anabiozz/asgard/plugins/inputs/all"
+	_ "github.com/anabiozz/asgard/plugins/outputs/all"
 )
 
 var stop chan struct{}
